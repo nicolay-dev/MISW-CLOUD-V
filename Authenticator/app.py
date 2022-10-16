@@ -4,13 +4,12 @@ from flask import Flask, request
 from flask_jwt_extended import jwt_required, create_access_token, JWTManager
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
-from .modelo import db, Usuario
+from .modelo import db, Usuario, UsuarioSchema
 import secrets
-from cryptography.fernet import Fernet
 import json
 
 app = create_app('Authenticator')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///authenticator.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://misoadmin:miso1234@localhost:5432/cloudtask'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'frase-secreta'
 app.config['PROPAGATE_EXCEPTIONS'] = True
@@ -28,7 +27,7 @@ class VistaSignIn(Resource):
 
     def post(self):
         newKey = secrets.token_hex(16)
-        nuevo_usuario = Usuario(usuario=request.json["usuario"], contrasena=generate_password_hash(request.json["contrasena"]), skey=newKey)
+        nuevo_usuario = Usuario(usuario=request.json["usuario"], contrasena=generate_password_hash(request.json["contrasena"]))
         db.session.add(nuevo_usuario)
         db.session.commit()
         token_de_acceso = create_access_token(identity=nuevo_usuario.id)
@@ -46,10 +45,9 @@ class VistaAuthenticator(Resource):
                 result = json.dumps({
                     "mensaje": "usuario autenticado exitosamente",
                     "token": token_de_acceso,
-                    "usuario_id": usuario.id,
-                    "skey": usuario.skey
+                    "usuario_id": usuario.id
                 })
-                return {"mensaje": "usuario autenticado exitosamente","token": token_de_acceso,"usuario_id": usuario.id,"skey": usuario.skey}, 200
+                return {"mensaje": "usuario autenticado exitosamente","token": token_de_acceso,"usuario_id": usuario.id}, 200
             else:
                 return {"mensaje": "usuario o contraseña incorrecta"}
 
