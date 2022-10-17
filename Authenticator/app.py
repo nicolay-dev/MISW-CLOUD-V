@@ -4,7 +4,7 @@ from flask import Flask, request
 from flask_jwt_extended import jwt_required, create_access_token, JWTManager
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
-from .modelo import db, Usuario, UsuarioSchema
+from modelo import db, Usuario
 import secrets
 import json
 
