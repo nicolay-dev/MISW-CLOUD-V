@@ -2,9 +2,11 @@ from flask_restful import Resource
 from flask import request, send_from_directory
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from flask_cors import CORS
-from modelo import db, Task, TaskSchema, MediaStatus, Usuario
 from werkzeug.security import generate_password_hash, check_password_hash
-import json
+from modelo import db, Task, TaskSchema, MediaStatus, Usuario
+from tasks import procesar_audio
+
+
 
 UPLOAD_FOLDER = "/home/leslysharyn/audios/original"
 CONVERTED_FOLDER = "/home/leslysharyn/audios/converted"
@@ -13,7 +15,8 @@ ALLOWED_EXTENSIONS = {"wav", "wma", "mp3", "ogg", "flac", "aac", "aiff", "m4a"}
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-           
+
+         
 class VistaSignIn(Resource):
 
     def post(self):
@@ -43,7 +46,7 @@ class VistaTask(Resource):
 
     @jwt_required()
     def post(self):
-        if allowed_file(request.files['file'].filename):
+        if allowed_file(request.files['fileName'].filename):
             if request.form["newFormat"] in ALLOWED_EXTENSIONS:
                 nuevo_task = Task(source_path= UPLOAD_FOLDER + "/"+ request.files["fileName"].filename, 
                                     target_format=request.form["newFormat"], 
@@ -52,6 +55,7 @@ class VistaTask(Resource):
                 db.session.add(nuevo_task)
                 db.session.commit()
                 request.files["fileName"].save(UPLOAD_FOLDER + "/"+ request.files["fileName"].filename)
+                procesar_audio.delay(nuevo_task.source_path, nuevo_task.target_format, CONVERTED_FOLDER+'/'+ (request.files["fileName"].filename).rsplit('.', 1)[0].lower())
                 return {"mensaje": "La tarea fue creada exitosamente"}
             else:
                     return {"mensaje": "Formato a cambiar no permitido"}
