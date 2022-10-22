@@ -4,8 +4,6 @@ from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identi
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from modelo import db, Task, TaskSchema, MediaStatus, Usuario
-from tasks import procesar_audio
-
 
 
 UPLOAD_FOLDER = "/home/leslysharyn/audios/original"
@@ -21,11 +19,11 @@ class VistaSignIn(Resource):
 
     def post(self):
         nuevo_usuario = Usuario(usuario=request.json["usuario"], 
-                                contrasena=generate_password_hash(request.json["contrasena"]))
+                                contrasena=generate_password_hash(request.json["contrasena"]),
+                                email=request.json["email"])
         db.session.add(nuevo_usuario)
         db.session.commit()
-        token_de_acceso = create_access_token(identity=nuevo_usuario.id)
-        return {"mensaje": "usuario creado exitosamente", "token": token_de_acceso, "id": nuevo_usuario.id}
+        return {"mensaje": "usuario creado exitosamente", "id": nuevo_usuario.id}
        
 
 class VistaAuthenticator(Resource):
@@ -46,16 +44,17 @@ class VistaTask(Resource):
 
     @jwt_required()
     def post(self):
+        id_user= get_jwt_identity()
         if allowed_file(request.files['fileName'].filename):
             if request.form["newFormat"] in ALLOWED_EXTENSIONS:
-                nuevo_task = Task(source_path= UPLOAD_FOLDER + "/"+ request.files["fileName"].filename, 
+                nuevo_task = Task(source_path= id_user + "_" + request.files["fileName"].filename, 
+                                    target_path = id_user + "_" + request.files["fileName"].filename.rsplit('.', 1)[0] + '.' + request.form["newFormat"],
                                     target_format=request.form["newFormat"], 
                                     status=MediaStatus.uploaded,
-                                    user_id= get_jwt_identity())
+                                    user_id= id_user)
                 db.session.add(nuevo_task)
                 db.session.commit()
                 request.files["fileName"].save(UPLOAD_FOLDER + "/"+ request.files["fileName"].filename)
-                procesar_audio.delay(nuevo_task.source_path, nuevo_task.target_format, CONVERTED_FOLDER+'/'+ (request.files["fileName"].filename).rsplit('.', 1)[0].lower())
                 return {"mensaje": "La tarea fue creada exitosamente"}
             else:
                     return {"mensaje": "Formato a cambiar no permitido"}

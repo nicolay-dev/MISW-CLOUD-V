@@ -24,6 +24,7 @@ class Usuario(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     usuario = db.Column(db.String(50))
     contrasena = db.Column(db.String(255))
+    email = db.Column(db.String(255))
     tasks = db.relationship('Task', cascade='all, delete, delete-orphan')
     
 
