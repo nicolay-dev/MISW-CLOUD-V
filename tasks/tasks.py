@@ -7,8 +7,8 @@ from email.mime.text import MIMEText
 from database import session
 from modeldb import Task, MediaStatus
 
-UPLOAD_FOLDER = "/home/leslysharyn/audios/original"
-CONVERTED_FOLDER = "/home/leslysharyn/audios/converted"
+UPLOAD_FOLDER = "/home/jcp98/audios/original"
+CONVERTED_FOLDER = "/home/jcp98/audios/converted"
 
 celery = Celery('tasks', broker='redis://localhost:6379/0')
 

@@ -8,8 +8,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from modelo import db, Task, TaskSchema, MediaStatus, Usuario
 
 
-UPLOAD_FOLDER = "/home/leslysharyn/audios/original"
-CONVERTED_FOLDER = "/home/leslysharyn/audios/converted"
+UPLOAD_FOLDER = "/home/jcp98/audios/original"
+CONVERTED_FOLDER = "/home/jcp98/audios/converted"
 ALLOWED_EXTENSIONS = {"wav", "wma", "mp3", "ogg", "flac", "aac", "aiff", "m4a"}
 task_schema = TaskSchema()
 
@@ -61,8 +61,8 @@ class VistaTask(Resource):
         id_user= get_jwt_identity()
         if allowed_file(request.files['fileName'].filename):
             if request.form["newFormat"] in ALLOWED_EXTENSIONS:
-                nuevo_task = Task(source_path= id_user + "_" + request.files["fileName"].filename, 
-                                    target_path = id_user + "_" + request.files["fileName"].filename.rsplit('.', 1)[0] + '.' + request.form["newFormat"],
+                nuevo_task = Task(source_path= str(id_user) + "_" + request.files["fileName"].filename, 
+                                    target_path = str(id_user) + "_" + request.files["fileName"].filename.rsplit('.', 1)[0] + '.' + request.form["newFormat"],
                                     target_format=request.form["newFormat"], 
                                     status=MediaStatus.uploaded,
                                     user_id= id_user)
@@ -103,5 +103,15 @@ class VistaArchivo(Resource):
 
     @jwt_required()
     def get(self, filename):
-        return send_from_directory(UPLOAD_FOLDER, filename, as_attachment=True)
+        user_id = get_jwt_identity()
+        tasks = Task.query.filter(Usuario.id == user_id).all()
+        archivoUser = str(user_id) + "_" + str(filename)
+        convPath = CONVERTED_FOLDER + "/" + str(filename)
+        for task in tasks:
+            if str(task.source_path) == archivoUser:
+                return send_from_directory(UPLOAD_FOLDER, filename, as_attachment=True)
+            elif str(task.target_path) == archivoUser and convPath.exists():
+                return send_from_directory(CONVERTED_FOLDER, filename, as_attachment=True)
+        return {"mensaje": "El archivo no existe."}
+
 
