@@ -6,21 +6,17 @@ import smtplib
 from email.mime.text import MIMEText
 from database import session
 from modeldb import Task, MediaStatus
+from dotenv import load_dotenv
+from utils import get_from_env
 
-UPLOAD_FOLDER = "/home/leslysharyn/audios/original"
-CONVERTED_FOLDER = "/home/leslysharyn/audios/converted"
-
-celery = Celery('tasks', broker='redis://localhost:6379/0')
-
-celery.conf.beat_schedule = {
-    "Convert-audio-files": {
-        "task": "tasks.procesar_audio",
-        "schedule": 30.0
-    }
-}
-
-
-
+def set_env():
+    load_dotenv()
+    global UPLOAD_FOLDER
+    UPLOAD_FOLDER = get_from_env("UPLOAD_FOLDER")
+    global CONVERTED_FOLDER
+    CONVERTED_FOLDER = get_from_env("CONVERTED_FOLDER")
+    global CELERY_BROKER_URL
+    CELERY_BROKER_URL = get_from_env("CELERY_BROKER_URL")
 
 def notify_authors(converted_audios):
     
@@ -48,8 +44,8 @@ def send_email(email_data):
     message["From"] = sender
     message["To"] =  receiver
 
-    with smtplib.SMTP("smtp.mailtrap.io", 2525) as server:
-        server.login("43016d8c11fc9e", "ace826b1322476")
+    with smtplib.SMTP(get_from_env("SMTP_SERVER"), get_from_env("SMTP_PORT")) as server:
+        server.login(get_from_env("SMTP_USERNAME"), get_from_env("SMTP_PASSWORD"))
         server.sendmail(sender, receiver,   message.as_string())
 
 def convert_files(audios_to_process):
@@ -79,6 +75,17 @@ def mark_converted(converted_audios):
     
     return rowcount
 
+
+set_env()
+
+celery = Celery('tasks', broker=CELERY_BROKER_URL)
+
+celery.conf.beat_schedule = {
+    "Convert-audio-files": {
+        "task": "tasks.procesar_audio",
+        "schedule": 60
+    }
+}
 
 @celery.task
 def procesar_audio():

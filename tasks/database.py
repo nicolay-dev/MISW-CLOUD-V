@@ -2,9 +2,12 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+from dotenv import load_dotenv
+from os import getenv
 
+load_dotenv()
 
-engine = create_engine('postgresql://misoadmin:miso1234@localhost:5432/cloudtask')
+engine = create_engine(getenv("DATABASE_URL"), echo=True)
 Session = sessionmaker(bind=engine)
 session = Session()
 

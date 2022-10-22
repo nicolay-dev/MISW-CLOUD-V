@@ -4,13 +4,24 @@ from flask_jwt_extended import JWTManager
 from flask_restful import Api
 from modelo import db
 from vistas import VistaTask, VistaAuthenticator, VistaSignIn, VistaArchivo, VistaTaskPorId
+from dotenv import load_dotenv
+from os import getenv
 
+def set_env():
+    load_dotenv()
+    global DATABASE_URL
+    DATABASE_URL = getenv("DATABASE_URL")
+    global JWT_SECRET_KEY
+    JWT_SECRET_KEY = getenv("JWT_SECRET_KEY")
+
+
+set_env()
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://misoadmin:miso1234@localhost:5432/cloudtask'
+app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-app.config['JWT_SECRET_KEY'] = 'frase-secreta'
+app.config['JWT_SECRET_KEY'] = JWT_SECRET_KEY
 app.config['PROPAGATE_EXCEPTIONS'] = True
 
 app_context = app.app_context()

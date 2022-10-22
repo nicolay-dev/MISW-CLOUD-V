@@ -6,13 +6,22 @@ from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identi
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from modelo import db, Task, TaskSchema, MediaStatus, Usuario
-
-
-UPLOAD_FOLDER = "/home/leslysharyn/audios/original"
-CONVERTED_FOLDER = "/home/leslysharyn/audios/converted"
+from dotenv import load_dotenv
+from os import getenv
 
 ALLOWED_EXTENSIONS = {"wav", "wma", "mp3", "ogg", "flac", "aac", "aiff", "m4a"}
+
 task_schema = TaskSchema()
+
+
+def set_env():
+    load_dotenv()
+    global UPLOAD_FOLDER
+    UPLOAD_FOLDER = getenv("UPLOAD_FOLDER")
+    global CONVERTED_FOLDER
+    CONVERTED_FOLDER = getenv("CONVERTED_FOLDER")
+
+set_env()
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -33,8 +42,7 @@ class VistaSignIn(Resource):
                                 email=request.json["email"])
                 db.session.add(nuevo_usuario)
                 db.session.commit()
-                token_de_acceso = create_access_token(identity=nuevo_usuario.id)
-                return {"mensaje": "usuario creado exitosamente", "token": token_de_acceso, "id": nuevo_usuario.id}
+                return {"mensaje": "usuario creado exitosamente", "id": nuevo_usuario.id}
         else:
             return {"mensaje": "El usuario no se pudo crear verifique las contraseñas"}
 
@@ -105,7 +113,8 @@ class VistaTask(Resource):
                                     user_id= id_user)
                 db.session.add(nuevo_task)
                 db.session.commit()
-                request.files["fileName"].save(UPLOAD_FOLDER + "/"+ request.files["fileName"].filename)
+                print(UPLOAD_FOLDER)
+                request.files["fileName"].save(UPLOAD_FOLDER + "/"+ str(id_user) + "_" + request.files["fileName"].filename)
                 return {"mensaje": "La tarea fue creada exitosamente"}
             else:
                     return {"mensaje": "Formato a cambiar no permitido"}
