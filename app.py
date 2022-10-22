@@ -1,12 +1,11 @@
-from flask import Flask, jsonify
+from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_restful import Api
-from modelo import db, Usuario
+from modelo import db
 from vistas import VistaTask, VistaAuthenticator, VistaSignIn, VistaArchivo, VistaTaskPorId, VistaTest
 from dotenv import load_dotenv
 from os import getenv
-from flask.cli import FlaskGroup
 
 def set_env():
     load_dotenv()
@@ -28,23 +27,8 @@ app.config['PROPAGATE_EXCEPTIONS'] = True
 app_context = app.app_context()
 app_context.push()
 
-# db.init_app(app)
-# db.create_all()
-
-cli = FlaskGroup(app)
-
-@cli.command("create_db")
-def create_db():
-    db.drop_all()
-    db.create_all()
-    db.session.commit()
-
-
-@cli.command("seed_db")
-def seed_db():
-    db.session.add(Usuario(usuario= "clouduser", email="clouduser@cloudmisw.com", contrasena="clouduser"))
-    db.session.commit()
-
+db.init_app(app)
+db.create_all()
 
 cors = CORS(app)
 
@@ -59,8 +43,6 @@ api.add_resource(VistaArchivo, '/api/files/<filename>')
 
 
 jwt = JWTManager(app)
-
-
 
 if __name__ == '__main__':
     app.run(debug=False)

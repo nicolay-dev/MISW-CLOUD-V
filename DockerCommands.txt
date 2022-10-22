@@ -22,3 +22,9 @@ docker build --tag cloudtask .
 
 #crea un contenedor de una imagen docker
 docker run -p 5000:5000 cloudtask
+
+
+#conectarse a la bd desde la terminal del contenedor
+psql --username=misoadmin --dbname=cloudtask
+\l
+\dt
