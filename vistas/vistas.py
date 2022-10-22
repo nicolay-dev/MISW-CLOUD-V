@@ -8,8 +8,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from modelo import db, Task, TaskSchema, MediaStatus, Usuario
 
 
-UPLOAD_FOLDER = "/home/jcp98/audios/original"
-CONVERTED_FOLDER = "/home/jcp98/audios/converted"
+UPLOAD_FOLDER = "/home/leslysharyn/audios/original"
+CONVERTED_FOLDER = "/home/leslysharyn/audios/converted"
+
 ALLOWED_EXTENSIONS = {"wav", "wma", "mp3", "ogg", "flac", "aac", "aiff", "m4a"}
 task_schema = TaskSchema()
 
@@ -36,7 +37,43 @@ class VistaSignIn(Resource):
                 return {"mensaje": "usuario creado exitosamente", "token": token_de_acceso, "id": nuevo_usuario.id}
         else:
             return {"mensaje": "El usuario no se pudo crear verifique las contraseñas"}
-       
+
+class VistaTaskPorId(Resource):
+
+    @jwt_required()
+    def get(self, id):
+        #Check if the task exist
+        tarea = Task.query.filter(Task.id == id).first()
+        if tarea is not None:
+        #Check if the user can select the id_task by id_user
+            user_id = get_jwt_identity()
+            if tarea.user_id == user_id:
+                return task_schema.dump(Task.query.get_or_404(id))
+            else:
+                return {"mensaje": "Este usuario no puede consultar esta tarea"} 
+        else: 
+            return {"mensaje": "EL id de la tarea no existe"}   
+
+
+    @jwt_required()
+    def delete(self, id):
+        #Check if the task exist
+        tarea = Task.query.filter(Task.id == id).first()
+        if tarea is not None:
+        #Check if the user can select the id_task by id_user
+            user_id = get_jwt_identity()
+            if tarea.user_id == user_id:
+                task = Task.query.get_or_404(id)
+                db.session.delete(task)
+                db.session.commit()
+                return {"mensaje": "Tarea eliminada exitosamente"} 
+            else:
+                return {"mensaje": "Este usuario no puede borrar esta tarea"} 
+        else: 
+            return {"mensaje": "EL id de la tarea no existe"}  
+
+    
+         
 
 class VistaAuthenticator(Resource):
 

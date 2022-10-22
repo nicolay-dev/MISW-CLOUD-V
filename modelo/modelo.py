@@ -2,6 +2,7 @@ import enum
 import datetime
 from flask_sqlalchemy import SQLAlchemy
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
+from marshmallow import fields
 
 db = SQLAlchemy()
 
@@ -27,6 +28,11 @@ class Usuario(db.Model):
     contrasena = db.Column(db.String(255))
     tasks = db.relationship('Task', cascade='all, delete, delete-orphan')
     
+class EnumADiccionario(fields.Field):
+    def _serialize(self, value, attr, obj, **kwargs):
+        if value is None:
+            return None
+        return {"status": value.value}
 
 
 class UsuarioSchema(SQLAlchemyAutoSchema):
@@ -37,6 +43,7 @@ class UsuarioSchema(SQLAlchemyAutoSchema):
 
          
 class TaskSchema(SQLAlchemyAutoSchema):
+    status = EnumADiccionario(attribute=("status"))
     class Meta:
          model = Task
          include_relationships = True
