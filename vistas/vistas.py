@@ -8,6 +8,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from modelo import db, Task, TaskSchema, MediaStatus, Usuario
 from dotenv import load_dotenv
 from os import getenv
+import os
 
 ALLOWED_EXTENSIONS = {"wav", "wma", "mp3", "ogg", "flac", "aac", "aiff", "m4a"}
 
@@ -78,10 +79,34 @@ class VistaTaskPorId(Resource):
             else:
                 return {"mensaje": "Este usuario no puede borrar esta tarea"} 
         else: 
-            return {"mensaje": "EL id de la tarea no existe"}  
-
+            return {"mensaje": "EL id de la tarea no existe"}
     
-         
+    @jwt_required()
+    def put(self, id):
+        #Check if the task exist
+        tarea = Task.query.filter(Task.id == id).first()
+        if tarea is not None:
+            user_id = get_jwt_identity()
+            #Check if task is from user who requested
+            if tarea.user_id == user_id:
+                #Check if format is allowed
+                if request.form["newFormat"] in ALLOWED_EXTENSIONS:
+                    #Check if task has been processed
+                    if tarea.status == MediaStatus.processed:
+                        #Delete file processed and reset task status
+                        os.remove(CONVERTED_FOLDER + "/" + tarea.target_path)
+                        tarea.status = MediaStatus.uploaded
+                    #Change task information and request
+                    tarea.target_format = request.form["newFormat"]
+                    tarea.target_path = tarea.target_path.rsplit('.', 1)[0] + '.' + request.form["newFormat"]
+                    db.session.commit()
+                    return task_schema.dump(Task.query.get_or_404(id))
+                else:
+                    return {"mensaje": "Formato a cambiar no permitido"}
+            else:
+                return {"mensaje": "No tienes acceso a esta tarea"}
+        else:
+            return {"mensaje": "La tarea no existe"}
 
 class VistaAuthenticator(Resource):
 
@@ -132,15 +157,18 @@ class VistaArchivo(Resource):
 
     @jwt_required()
     def get(self, filename):
+        #Get user id from bearer token
         user_id = get_jwt_identity()
+        #Get all tasks from user
         tasks = Task.query.filter(Usuario.id == user_id).all()
         archivoUser = str(user_id) + "_" + str(filename)
         convPath = CONVERTED_FOLDER + "/" + str(filename)
         for task in tasks:
+            #Check if any task from has an original or uploaded file with the name and extension provided
             if str(task.source_path) == archivoUser:
-                return send_from_directory(UPLOAD_FOLDER, filename, as_attachment=True)
+                return send_from_directory(UPLOAD_FOLDER, archivoUser, as_attachment=True)
             elif str(task.target_path) == archivoUser and convPath.exists():
-                return send_from_directory(CONVERTED_FOLDER, filename, as_attachment=True)
+                return send_from_directory(CONVERTED_FOLDER, archivoUser, as_attachment=True)
         return {"mensaje": "El archivo no existe."}
 
 
