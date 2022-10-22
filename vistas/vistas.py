@@ -149,5 +149,15 @@ class VistaArchivo(Resource):
 
     @jwt_required()
     def get(self, filename):
-        return send_from_directory(UPLOAD_FOLDER, filename, as_attachment=True)
+        user_id = get_jwt_identity()
+        tasks = Task.query.filter(Usuario.id == user_id).all()
+        archivoUser = str(user_id) + "_" + str(filename)
+        convPath = CONVERTED_FOLDER + "/" + str(filename)
+        for task in tasks:
+            if str(task.source_path) == archivoUser:
+                return send_from_directory(UPLOAD_FOLDER, filename, as_attachment=True)
+            elif str(task.target_path) == archivoUser and convPath.exists():
+                return send_from_directory(CONVERTED_FOLDER, filename, as_attachment=True)
+        return {"mensaje": "El archivo no existe."}
+
 
