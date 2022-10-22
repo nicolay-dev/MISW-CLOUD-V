@@ -28,6 +28,11 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
          
+class VistaTest(Resource):
+
+    def get(self):
+        return {"Hola": "Mundo"}
+
 class VistaSignIn(Resource):
 
     def post(self):

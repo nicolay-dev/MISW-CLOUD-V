@@ -1,0 +1,24 @@
+# Remueve todos los contenedores (forzado)
+docker rm -f $(docker ps -aq)
+
+
+
+# Baja todos los contenedores he imagenes
+docker-compose down -v       
+#Prod
+docker-compose -f docker-compose.prod.yml down -v
+
+#Construye la imagen y la levanta
+docker-compose up -d --build 
+#Prod
+docker-compose -f docker-compose.prod.yml up -d --build 
+
+#Estar seguro en usuarios MacOS de tener apagado AirPlay Receiver
+(Go to System Preference --> Sharing --> uncheck off the AirPlay Receiver)
+
+
+#construye una imagen docker de un archivo Dockerfile
+docker build --tag cloudtask .
+
+#crea un contenedor de una imagen docker
+docker run -p 5000:5000 cloudtask
