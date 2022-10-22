@@ -22,9 +22,9 @@ class Task(db.Model):
 
 class Usuario(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    usuario = db.Column(db.String(50))
+    usuario = db.Column(db.String(50), unique=True, index=True, nullable=False)
+    email = db.Column(db.String(120), nullable=False, unique=True)
     contrasena = db.Column(db.String(255))
-    email = db.Column(db.String(255))
     tasks = db.relationship('Task', cascade='all, delete, delete-orphan')
     
 
