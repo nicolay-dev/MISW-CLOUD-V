@@ -124,26 +124,9 @@ class VistaTask(Resource):
     @jwt_required()
     def get(self):
         user_id = get_jwt_identity()
-        tareas = []
         tasks = Task.query.filter(Usuario.id == user_id).all()
-        for task in tasks:
-            if task.status == "uploaded":
-                newStatus = "uploaded"
-            else:
-                newStatus = "processed"
-            newTarea = {
-                "id" : task.id,
-                "source_path" : task.source_path,
-                "target_path" : task.target_path,
-                "target_format" : task.target_format,
-                "status" : newStatus,
-                "created_at" : task.created_at,
-                "user_id" : task.user_id,
-            }
-            tareas.append(newTarea)
-        return [task_schema.dump(tarea) for tarea in tareas]
+        return [task_schema.dump(tarea) for tarea in tasks]
     
-       
 
 class VistaArchivo(Resource):
 
