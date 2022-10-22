@@ -1,4 +1,5 @@
 from string import ascii_lowercase
+from telnetlib import SEND_URL
 from celery import Celery
 from celery.utils.log import get_task_logger
 import subprocess
@@ -17,6 +18,8 @@ def set_env():
     CONVERTED_FOLDER = get_from_env("CONVERTED_FOLDER")
     global CELERY_BROKER_URL
     CELERY_BROKER_URL = get_from_env("CELERY_BROKER_URL")
+    global SEND_EMAIL
+    SEND_EMAIL = get_from_env("SEND_EMAIL")
 
 def notify_authors(converted_audios):
     
@@ -35,7 +38,7 @@ def notify_authors(converted_audios):
     
 
 def send_email(email_data):
-    print(email_data)
+    print("Sending email to %s" % email_data['to'])
     sender = "Private Person <from@smtp.mailtrap.io>"
     receiver = email_data["to"]
 
@@ -51,6 +54,7 @@ def send_email(email_data):
 def convert_files(audios_to_process):
     converted_audios = []
     for audio in audios_to_process:
+        print("Processing audio %s" % audio.source_path)
         source_path = UPLOAD_FOLDER + '/'+ audio.source_path
         target_path = CONVERTED_FOLDER + '/'+ audio.target_path
         target_format = audio.target_format
@@ -67,8 +71,7 @@ def mark_converted(converted_audios):
         print("Ninguna voz fue convertida en esta iteración.")
         return 0
     converted_files_ids = tuple(map(lambda audio: audio.id, converted_audios))
-    for id in converted_files_ids:
-        print(id)
+    print("Marcando archivos convertidos: %s" % str(converted_files_ids))
     rowcount = session.query(Task).filter(Task.id.in_(converted_files_ids)).\
                 update({"status": MediaStatus.processed})
     session.commit()
@@ -93,12 +96,14 @@ def procesar_audio():
         audios_to_process = session.query(Task).filter_by(status = MediaStatus.uploaded).all()
         converted_audios = convert_files(audios_to_process)
         number_audios_updated = mark_converted(converted_audios)
-        print(number_audios_updated)
         # If conversion resulted in error, move them back to "Recibida" so other process can pick them up
         audios_to_rollback = [audio for audio in audios_to_process if audio not in converted_audios]
         if number_audios_updated > 0:
-            print("Notify authors")
-            notify_authors(converted_audios)
+            if SEND_EMAIL == "True":
+                notify_authors(converted_audios)
+                print("Notify authors")
+            else:
+                print("Not sending emails")
         return "DONE with SUCCESS"
     except Exception as e:
         print(f"Ocurrió un error durante la ejecución de la tarea: {str(e)}")
