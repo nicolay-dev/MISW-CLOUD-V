@@ -42,7 +42,7 @@ class VistaTaskPorId(Resource):
 
     @jwt_required()
     def get(self, id):
-        #Check if the task existe
+        #Check if the task exist
         tarea = Task.query.filter(Task.id == id).first()
         if tarea is not None:
         #Check if the user can select the id_task by id_user
@@ -52,7 +52,28 @@ class VistaTaskPorId(Resource):
             else:
                 return {"mensaje": "Este usuario no puede consultar esta tarea"} 
         else: 
-            return {"mensaje": "EL id de la tarea no existe"}        
+            return {"mensaje": "EL id de la tarea no existe"}   
+
+
+    @jwt_required()
+    def delete(self, id):
+        #Check if the task exist
+        tarea = Task.query.filter(Task.id == id).first()
+        if tarea is not None:
+        #Check if the user can select the id_task by id_user
+            user_id = get_jwt_identity()
+            if tarea.user_id == user_id:
+                task = Task.query.get_or_404(id)
+                db.session.delete(task)
+                db.session.commit()
+                return {"mensaje": "Tarea eliminada exitosamente"} 
+            else:
+                return {"mensaje": "Este usuario no puede borrar esta tarea"} 
+        else: 
+            return {"mensaje": "EL id de la tarea no existe"}  
+
+    
+         
 
 class VistaAuthenticator(Resource):
 
