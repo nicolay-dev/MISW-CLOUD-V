@@ -16,6 +16,9 @@ docker-compose -f docker-compose.prod.yml up -d --build
 #Estar seguro en usuarios MacOS de tener apagado AirPlay Receiver
 (Go to System Preference --> Sharing --> uncheck off the AirPlay Receiver)
 
+#Estar seguro que los archivos docker-compose.prod.yml, Dockerfile.prod, entrypoint.prod.sh están 
+#en LF (configuración de salto de línea en el editor de texto) para Linux
+
 
 #construye una imagen docker de un archivo Dockerfile
 docker build --tag cloudtask .

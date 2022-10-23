@@ -43,6 +43,9 @@ RUN addgroup --system app && adduser --system --group app
 # create the appropriate directories
 ENV HOME=/home/app
 ENV APP_HOME=/home/app/
+RUN mkdir /home/app/audios
+RUN mkdir /home/app/audios/uploaded
+RUN mkdir /home/app/audios/processed
 # RUN mkdir $APP_HOME
 WORKDIR $APP_HOME
 
