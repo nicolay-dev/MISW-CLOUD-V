@@ -50,7 +50,7 @@ RUN mkdir /home/app/audios/processed
 WORKDIR $APP_HOME
 
 # install dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends netcat && apt-get -y install curl && apt-get -y install ufw
+RUN apt-get update && apt-get install -y --no-install-recommends netcat && apt-get -y install curl && apt-get -y install ufw && apt-get install -y ffmpeg
 COPY --from=builder /usr/src/app/wheels /wheels
 COPY --from=builder /usr/src/app/requirements.txt .
 RUN pip install --upgrade pip
@@ -67,6 +67,16 @@ COPY . $APP_HOME
 
 # chown all the files to the app user
 RUN chown -R app:app $APP_HOME
+
+COPY ./celery/worker/start.sh /start-celeryworker
+RUN sed -i 's/\r$//g' /start-celeryworker
+RUN chmod +x /start-celeryworker
+
+COPY ./celery/beat/start.sh /start-celerybeat
+RUN sed -i 's/\r$//g' /start-celerybeat
+RUN chmod +x /start-celerybeat
+
+# RUN sed -i 's/\r$//g' /home/app/
 
 # change to the app user
 # USER app
