@@ -54,7 +54,7 @@ def send_email(email_data):
 def convert_files(audios_to_process):
     converted_audios = []
     for audio in audios_to_process:
-        print("Processing audio %s" % audio.source_path)
+        print("Processing audio task id %s" % audio.id)
         source_path = UPLOAD_FOLDER + '/'+ audio.source_path
         target_path = CONVERTED_FOLDER + '/'+ audio.target_path
         target_format = audio.target_format
@@ -62,6 +62,7 @@ def convert_files(audios_to_process):
             result = subprocess.run(["ffmpeg", "-y", "-i", source_path, target_path])
             if result.returncode == 0:
                 converted_audios.append(audio)
+                print("Audio proccesed task id %s" % audio.id)
         except Exception as e:
             print("Error al convertir el archivo: %s", e)
     return list(converted_audios)
