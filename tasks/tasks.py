@@ -96,6 +96,7 @@ def procesar_audio():
         audios_to_process = session.query(Task).filter_by(status = MediaStatus.uploaded).all()
         converted_audios = convert_files(audios_to_process)
         number_audios_updated = mark_converted(converted_audios)
+        print("Number of files processed in the Batch %s" % number_audios_updated)
         # If conversion resulted in error, move them back to "Recibida" so other process can pick them up
         audios_to_rollback = [audio for audio in audios_to_process if audio not in converted_audios]
         if number_audios_updated > 0:
