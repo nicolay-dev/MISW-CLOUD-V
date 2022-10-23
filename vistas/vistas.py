@@ -167,12 +167,12 @@ class VistaArchivo(Resource):
         #Get all tasks from user
         tasks = Task.query.filter(Usuario.id == user_id).all()
         archivoUser = str(user_id) + "_" + str(filename)
-        convPath = CONVERTED_FOLDER + "/" + str(filename)
+        convPath = CONVERTED_FOLDER + "/" + str(archivoUser)
         for task in tasks:
             #Check if any task from has an original or uploaded file with the name and extension provided
             if str(task.source_path) == archivoUser:
                 return send_from_directory(UPLOAD_FOLDER, archivoUser, as_attachment=True)
-            elif str(task.target_path) == archivoUser and convPath.exists():
+            elif str(task.target_path) == archivoUser and os.path.exists(convPath):
                 return send_from_directory(CONVERTED_FOLDER, archivoUser, as_attachment=True)
         return {"mensaje": "El archivo no existe."}
 
