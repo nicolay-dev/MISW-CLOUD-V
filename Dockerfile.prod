@@ -46,6 +46,9 @@ ENV APP_HOME=/home/app/
 RUN mkdir /home/app/audios
 RUN mkdir /home/app/audios/uploaded
 RUN mkdir /home/app/audios/processed
+RUN mkdir /home/app/logs
+RUN touch /home/app/logs/celery.log
+RUN touch /home/app/logs/celerybeat.log
 # RUN mkdir $APP_HOME
 WORKDIR $APP_HOME
 
