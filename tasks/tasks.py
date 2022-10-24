@@ -79,6 +79,18 @@ def mark_converted(converted_audios):
     
     return rowcount
 
+def mark_rollback(rollback_audios):
+    if len(rollback_audios) == 0:
+        print("Todos los audios fueron convertidos.")
+        return 0
+    rollback_files_ids = tuple(map(lambda audio: audio.id, rollback_audios))
+    print("Rollback de archivos no convertidos: %s" % str(rollback_files_ids))
+    rowcount = session.query(Task).filter(Task.id.in_(rollback_files_ids)).\
+                update({"status": MediaStatus.uploaded})
+    session.commit()
+    
+    return rowcount
+
 
 set_env()
 
@@ -94,12 +106,15 @@ celery.conf.beat_schedule = {
 @celery.task
 def procesar_audio():
     try:
-        audios_to_process = session.query(Task).filter_by(status = MediaStatus.uploaded).all()
+        audios_to_process = session.query(Task).filter_by(status = MediaStatus.uploaded).limit(100).all()
+        if len(converted_audios) > 0:
+            lock_audios_to_process=mark_converted(audios_to_process)        
         converted_audios = convert_files(audios_to_process)
         number_audios_updated = mark_converted(converted_audios)
         print("Number of files processed in the Batch %s" % number_audios_updated)
         # If conversion resulted in error, move them back to "Recibida" so other process can pick them up
         audios_to_rollback = [audio for audio in audios_to_process if audio not in converted_audios]
+        number_audios_rollback = mark_rollback(audios_to_rollback)
         if number_audios_updated > 0:
             if SEND_EMAIL == "True":
                 notify_authors(converted_audios)
