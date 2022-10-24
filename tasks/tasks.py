@@ -107,7 +107,7 @@ celery.conf.beat_schedule = {
 def procesar_audio():
     try:
         audios_to_process = session.query(Task).filter_by(status = MediaStatus.uploaded).limit(100).all()
-        if len(converted_audios) > 0:
+        if len(audios_to_process) > 0:
             lock_audios_to_process=mark_converted(audios_to_process)        
         converted_audios = convert_files(audios_to_process)
         number_audios_updated = mark_converted(converted_audios)
