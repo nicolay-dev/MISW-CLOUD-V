@@ -17,6 +17,9 @@ docker rm -f $(docker ps -aq)
 
 docker-compose -f docker-compose.prod.yml down -v
 
+## Configure la variable de enviar Email
+Por configuración inicial la aplicación no esta configurada para mandar email. Por favor configure en el archivo .env.prod ubicado en el root del proyecto la variable de entorno SEND_EMAIL= "True" para activar la funcionalidad. 
+
 ## Construye la imagen 
 
 docker-compose -f docker-compose.prod.yml up -d --build 
