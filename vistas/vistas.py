@@ -154,7 +154,7 @@ class VistaTask(Resource):
     @jwt_required()
     def get(self):
         user_id = get_jwt_identity()
-        tasks = Task.query.filter(Usuario.id == user_id).all()
+        tasks = Task.query.filter(Task.user_id == user_id).all()
         return [task_schema.dump(tarea) for tarea in tasks]
     
 
@@ -165,7 +165,7 @@ class VistaArchivo(Resource):
         #Get user id from bearer token
         user_id = get_jwt_identity()
         #Get all tasks from user
-        tasks = Task.query.filter(Usuario.id == user_id).all()
+        tasks = Task.query.filter(Task.user_id == user_id).all()
         archivoUser = str(user_id) + "_" + str(filename)
         convPath = CONVERTED_FOLDER + "/" + str(archivoUser)
         for task in tasks:
