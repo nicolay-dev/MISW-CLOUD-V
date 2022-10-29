@@ -43,7 +43,7 @@ Utilice el archivo de postman publicado para realizar las pruebas de los distint
 
 Recuerde configurar la Ip, subir archivos adecuados y configurar el bearer token en las variables remotas. 
 
-https://miso-misw4204-cloud.postman.co/
-
+[https://miso-misw4204-cloud.postman.co/
+](https://documenter.getpostman.com/view/20288420/2s84Dssfmy)
 
 
