@@ -64,7 +64,7 @@ RUN pip install --no-cache /wheels/*
 
 # copy entrypoint-prod.sh
 COPY ./entrypoint.prod.sh $APP_HOME
-
+COPY ./cloud-miso-8.json $APP_HOME
 # copy project
 COPY . $APP_HOME
 
