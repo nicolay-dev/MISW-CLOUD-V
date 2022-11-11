@@ -59,7 +59,7 @@ def convert_files(audios_to_process):
         target_path = CONVERTED_FOLDER + '/'+ audio.target_path
         target_format = audio.target_format
         try:
-            result = subprocess.run(["ffmpeg", "-y", "-i", source_path, target_path])
+            result = subprocess.run(["/usr/bin/ffmpeg", "-y", "-i", source_path, target_path])
             if result.returncode == 0:
                 converted_audios.append(audio)
                 print("Audio proccesed task id %s" % audio.id)
