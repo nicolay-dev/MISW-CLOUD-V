@@ -30,6 +30,8 @@ def set_env():
     global GCP_CONVERTED_FOLDER
     GCP_CONVERTED_FOLDER = getenv("GCP_FOLDER_CONVERTED")
 
+set_env()
+
 storage_client = storage.Client()
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "cloud-miso-8.json"
 storage_client = storage.Client()
@@ -129,7 +131,7 @@ def mark_rollback(rollback_audios):
     return rowcount
 
 
-set_env()
+
 
 celery = Celery('tasks', broker=CELERY_BROKER_URL)
 
