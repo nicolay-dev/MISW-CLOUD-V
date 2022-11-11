@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "cloud-miso",
+  "private_key_id": "834ed305b86db6ab0df10b3556da7f3b7cc9a412",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCvR9b4btyDkwm4\nFpaMukpgEwZU1cMWn16WvBcr6GMD3CXfXPopgPFCp8q61V0PpNccAA6rDxOkXW6t\n1AswSIvDOC/4L0NSxjw6glyy/f8RiMslVPRz3WOW/jj/JDp6Lls9oOZi2uDHXJZM\n170ESb7g01SsYxFvtvf+pYM8erehwRptz52YtzqhrxfLwlrGfl05ZPvKs5YJrF+2\noCP+9QzxLX+2+8DgeTqakJZiG9ek/CmtFStKKBY/ugqy0pZM76Vk5UGKey6NmDn1\nzsksD3lCSE3drRr2AiO028lF7NPKEmMQjcqn4tE0cZcCIwjVCZeYCkCYjPaQllgu\nlvUTJMWfAgMBAAECggEAK3w0LfA7Dv10pNIdyY4SE6HEqVlbDAq/yb+iNAd0QSnl\nz3NesNtHf5TnK9DxRIdNwqmU+gVEhzuS0NdRa0okOmt/IyB+oFOD77QV0WZIWI5K\nb9mSyAf9xCEP/OR9CYDkq/Z2EcJhj7Q9qZTAVQcCrv5e/GGbms6W2fswAtojIqK+\nz/t5iE8MT2/JnmAJWe5ZXs4KxCkTVqM25pbMbchAfSldBUSn25zH3oIz488bWs2J\n3uoE9nPWrobKQdA+XiJKzMB4ukNNJTQ046uFTvL1ZfrfEwhw8ELqap3wJEXAPF8P\nBHTfpsupIH6kdWS7zNqIZbo9WukH9lpXWgW8hJTu6QKBgQDu8uUu99WUEHh8iefH\nkLeQOE0mj7e4/iIkU383yr/mRp3kB2t5gOc855K7zzOlhiEhyL8XuKhiiUhXLdUb\n78qFVFNzfZwzM+RCSnob2REhkeYoLAi6Q/11jv/nBkTvX5W/a4XZbqg+ug9TLGEE\nW8TXt3oSlaXT56PBRhx0eSaGewKBgQC7ydt3VsKPXfYdEr/0T45Zivd3u4+fpMNI\nqdg+Lf5KbsNoIFXUto1Sp8OjRtutAz2Fj/m/u99BzoLR0cFoUGGOW8+s+VSzo57u\nNViZEY11032jKxeFs3wgu4bJAYLyOPa8j6KW1gOLT8Pyz1zB7PFX+JSKMlpECJgv\nhRgKIVTGLQKBgDKOPaNEWHHtUjC3VMzKd6wR3XDtM2f2jO62o9IAGb307u8SCtE4\nTrR6IneODVVWHahyOswgC7Bdb2rSjaZNg8HV55ol12iV8BN+gntl39QEdHfHaUlP\nnU7EJKySjP9AcASCEV3BpeMvppJob1ZmvC0P6soH04AUIHeCB/80qswFAoGBAJfh\n5Z2aEHaAWqSdG5/wEIQfv5OZocpPKptEs99mt7tf5q/7JzCKDbeCdNtEXjyK2GGE\nV01aGHJTIr+tVS6XhK/tVgTjDDzW455qiyQSbEWWLpGgMsAysPyQb613iX97zyQn\nUCuLIQa2Fxf122IF0BWEui8kFpncEaqtjQn0d2ppAoGAX4Qi2klbVfni5FOKY3Je\nAa9GhxuVspmQf7BX1pj7ofmOdOKqpow7Q3eiGYvtVoXFf5Vl34Cl2jP7hbH3Yac9\nfpu9f4uB6VySEF3aDVNrhwpuKSVi5t2BFyoefemt3e6v1wMo0p8kTkZCTUcoBwF4\nPLCSchzn8ZST27Hae1sZR9c=\n-----END PRIVATE KEY-----\n",
+  "client_email": "acceso-bucket@cloud-miso.iam.gserviceaccount.com",
+  "client_id": "111937031868313528525",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/acceso-bucket%40cloud-miso.iam.gserviceaccount.com"
+}
