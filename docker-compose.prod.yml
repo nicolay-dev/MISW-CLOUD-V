@@ -14,7 +14,7 @@ services:
       - ./.env.prod
     depends_on:
       - db
-    cpus: '2'
+    cpus: 2
     mem_limit: '2GB'
   db:
     image: postgres:13-alpine
@@ -44,7 +44,7 @@ services:
     depends_on:
       - redis
       - db
-    cpus: '2'
+    cpus: 2
     mem_limit: '2GB'
 
   celery_beat:
