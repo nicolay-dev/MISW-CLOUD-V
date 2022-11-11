@@ -145,7 +145,7 @@ class VistaTask(Resource):
                 db.session.commit()
                 print(UPLOAD_FOLDER)
                 request.files["fileName"].save(UPLOAD_FOLDER + "/"+ str(id_user) + "_" + request.files["fileName"].filename)
-                return {"mensaje": "La tarea fue creada exitosamente"}
+                return {"mensaje": "La tarea fue creada exitosamente", "id": nuevo_task.id}
             else:
                     return {"mensaje": "Formato a cambiar no permitido"}
         else:
