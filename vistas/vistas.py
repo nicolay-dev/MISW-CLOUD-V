@@ -29,8 +29,6 @@ def set_env():
     GCP_UPLOADED_FOLDER = getenv("GCP_FOLDER_UPLOADED")
     global GCP_CONVERTED_FOLDER
     GCP_CONVERTED_FOLDER = getenv("GCP_FOLDER_CONVERTED")
-    global GOOGLE_APPLICATION_CREDENTIALS
-    GOOGLE_APPLICATION_CREDENTIALS = getenv("GOOGLE_APPLICATION_CREDENTIALS")
     
 
 set_env()
@@ -49,6 +47,14 @@ def upload_to_bucket(file_path):
         print(e)
         return False
 
+def download_file_from_bucket(blobfile_path, file_path):
+    try:
+        blob = bucket.blob(blobfile_path)
+        blob.download_to_filename(file_path)
+        return True
+    except Exception as e: 
+        print(e)
+        return False
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -172,6 +178,7 @@ class VistaTask(Resource):
                 print(UPLOAD_FOLDER)
                 request.files["fileName"].save(UPLOAD_FOLDER + "/"+ str(id_user) + "_" + request.files["fileName"].filename)
                 upload_to_bucket("/"+ str(id_user) + "_" + request.files["fileName"].filename)
+                os.remove(UPLOAD_FOLDER + "/"+ str(id_user) + "_" + request.files["fileName"].filename)
                 return {"mensaje": "La tarea fue creada exitosamente", "id": nuevo_task.id}
             else:
                     return {"mensaje": "Formato a cambiar no permitido"}
@@ -198,9 +205,15 @@ class VistaArchivo(Resource):
         for task in tasks:
             #Check if any task from has an original or uploaded file with the name and extension provided
             if str(task.source_path) == archivoUser:
-                return send_from_directory(UPLOAD_FOLDER, archivoUser, as_attachment=True)
+                download_file_from_bucket(GCP_UPLOADED_FOLDER + "/" + archivoUser, UPLOAD_FOLDER + "/" + archivoUser)
+                result = send_from_directory(UPLOAD_FOLDER, archivoUser, as_attachment=True)
+                os.remove(UPLOAD_FOLDER + "/" + archivoUser)
+                return result
             elif str(task.target_path) == archivoUser and os.path.exists(convPath):
-                return send_from_directory(CONVERTED_FOLDER, archivoUser, as_attachment=True)
+                download_file_from_bucket(GCP_CONVERTED_FOLDER + "/" + archivoUser, CONVERTED_FOLDER + "/" + archivoUser)
+                result = send_from_directory(CONVERTED_FOLDER, archivoUser, as_attachment=True)
+                os.remove(CONVERTED_FOLDER + "/" + archivoUser)
+                return result
         return {"mensaje": "El archivo no existe."}
 
 
