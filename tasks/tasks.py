@@ -9,17 +9,50 @@ from database import session
 from modeldb import Task, MediaStatus
 from dotenv import load_dotenv
 from utils import get_from_env
+from google.cloud import storage 
+import os
+from os import getenv
 
 def set_env():
     load_dotenv()
     global UPLOAD_FOLDER
-    UPLOAD_FOLDER = get_from_env("UPLOAD_FOLDER")
+    UPLOAD_FOLDER = getenv("UPLOAD_FOLDER")
     global CONVERTED_FOLDER
-    CONVERTED_FOLDER = get_from_env("CONVERTED_FOLDER")
+    CONVERTED_FOLDER = getenv("CONVERTED_FOLDER")
     global CELERY_BROKER_URL
-    CELERY_BROKER_URL = get_from_env("CELERY_BROKER_URL")
+    CELERY_BROKER_URL = getenv("CELERY_BROKER_URL")
     global SEND_EMAIL
-    SEND_EMAIL = get_from_env("SEND_EMAIL")
+    SEND_EMAIL = getenv("SEND_EMAIL")
+    global BUCKET_NAME 
+    BUCKET_NAME = getenv("GCP_BUCKET_NAME")
+    global GCP_UPLOADED_FOLDER
+    GCP_UPLOADED_FOLDER = getenv("GCP_FOLDER_UPLOADED")
+    global GCP_CONVERTED_FOLDER
+    GCP_CONVERTED_FOLDER = getenv("GCP_FOLDER_CONVERTED")
+
+storage_client = storage.Client()
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "cloud-miso-8.json"
+storage_client = storage.Client()
+bucket = storage_client.get_bucket(BUCKET_NAME)
+
+
+def upload_to_bucket(file_path):
+    try:
+        blob = bucket.blob(GCP_CONVERTED_FOLDER + file_path)
+        blob.upload_from_filename(CONVERTED_FOLDER + file_path)
+        return True
+    except Exception as e: 
+        print(e)
+        return False
+
+def download_file_from_bucket(file_path):
+    try:
+        blob = bucket.blob(GCP_UPLOADED_FOLDER + file_path)
+        blob.download_to_filename(UPLOAD_FOLDER + file_path)
+        return True
+    except Exception as e: 
+        print(e)
+        return False
 
 def notify_authors(converted_audios):
     
@@ -58,11 +91,15 @@ def convert_files(audios_to_process):
         source_path = UPLOAD_FOLDER + '/'+ audio.source_path
         target_path = CONVERTED_FOLDER + '/'+ audio.target_path
         target_format = audio.target_format
+        download_file_from_bucket('/'+ audio.source_path)
         try:
             result = subprocess.run(["/usr/bin/ffmpeg", "-y", "-i", source_path, target_path])
             if result.returncode == 0:
+                upload_to_bucket('/'+ audio.target_path)
+                os.remove(target_path)
                 converted_audios.append(audio)
                 print("Audio proccesed task id %s" % audio.id)
+            os.remove(source_path)    
         except Exception as e:
             print("Error al convertir el archivo: %s", e)
     return list(converted_audios)

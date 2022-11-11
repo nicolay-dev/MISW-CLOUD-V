@@ -8,11 +8,13 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from modelo import db, Task, TaskSchema, MediaStatus, Usuario
 from dotenv import load_dotenv
 from os import getenv
+from google.cloud import storage 
 import os
 
 ALLOWED_EXTENSIONS = {"wav", "wma", "mp3", "ogg", "flac", "aac", "aiff", "m4a"}
 
 task_schema = TaskSchema()
+storage_client = storage.Client()
 
 
 def set_env():
@@ -21,8 +23,38 @@ def set_env():
     UPLOAD_FOLDER = getenv("UPLOAD_FOLDER")
     global CONVERTED_FOLDER
     CONVERTED_FOLDER = getenv("CONVERTED_FOLDER")
+    global BUCKET_NAME 
+    BUCKET_NAME = getenv("GCP_BUCKET_NAME")
+    global GCP_UPLOADED_FOLDER
+    GCP_UPLOADED_FOLDER = getenv("GCP_FOLDER_UPLOADED")
+    global GCP_CONVERTED_FOLDER
+    GCP_CONVERTED_FOLDER = getenv("GCP_FOLDER_CONVERTED")
+    
 
 set_env()
+
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'cloud-miso-8.json'
+storage_client = storage.Client()
+bucket = storage_client.get_bucket(BUCKET_NAME)
+
+
+def upload_to_bucket(file_path):
+    try:
+        blob = bucket.blob(GCP_UPLOADED_FOLDER + file_path)
+        blob.upload_from_filename( UPLOAD_FOLDER + file_path)
+        return True
+    except Exception as e: 
+        print(e)
+        return False
+
+def download_file_from_bucket(blobfile_path, file_path):
+    try:
+        blob = bucket.blob(blobfile_path)
+        blob.download_to_filename(file_path)
+        return True
+    except Exception as e: 
+        print(e)
+        return False
 
 def allowed_file(filename):
     return '.' in filename and \
@@ -145,7 +177,9 @@ class VistaTask(Resource):
                 db.session.commit()
                 print(UPLOAD_FOLDER)
                 request.files["fileName"].save(UPLOAD_FOLDER + "/"+ str(id_user) + "_" + request.files["fileName"].filename)
-                return {"mensaje": "La tarea fue creada exitosamente"}
+                upload_to_bucket("/"+ str(id_user) + "_" + request.files["fileName"].filename)
+                os.remove(UPLOAD_FOLDER + "/"+ str(id_user) + "_" + request.files["fileName"].filename)
+                return {"mensaje": "La tarea fue creada exitosamente", "id": nuevo_task.id}
             else:
                     return {"mensaje": "Formato a cambiar no permitido"}
         else:
@@ -171,9 +205,15 @@ class VistaArchivo(Resource):
         for task in tasks:
             #Check if any task from has an original or uploaded file with the name and extension provided
             if str(task.source_path) == archivoUser:
-                return send_from_directory(UPLOAD_FOLDER, archivoUser, as_attachment=True)
+                download_file_from_bucket(GCP_UPLOADED_FOLDER + "/" + archivoUser, UPLOAD_FOLDER + "/" + archivoUser)
+                result = send_from_directory(UPLOAD_FOLDER, archivoUser, as_attachment=True)
+                os.remove(UPLOAD_FOLDER + "/" + archivoUser)
+                return result
             elif str(task.target_path) == archivoUser and os.path.exists(convPath):
-                return send_from_directory(CONVERTED_FOLDER, archivoUser, as_attachment=True)
+                download_file_from_bucket(GCP_CONVERTED_FOLDER + "/" + archivoUser, CONVERTED_FOLDER + "/" + archivoUser)
+                result = send_from_directory(CONVERTED_FOLDER, archivoUser, as_attachment=True)
+                os.remove(CONVERTED_FOLDER + "/" + archivoUser)
+                return result
         return {"mensaje": "El archivo no existe."}
 
 
