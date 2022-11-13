@@ -34,7 +34,6 @@ set_env()
 
 storage_client = storage.Client()
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "cloud-miso-8.json"
-storage_client = storage.Client()
 bucket = storage_client.get_bucket(BUCKET_NAME)
 
 
@@ -129,7 +128,6 @@ def mark_rollback(rollback_audios):
     session.commit()
     
     return rowcount
-
 
 
 
