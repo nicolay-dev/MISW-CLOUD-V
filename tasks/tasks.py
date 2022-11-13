@@ -12,6 +12,9 @@ from utils import get_from_env
 from google.cloud import storage 
 import os
 from os import getenv
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail, Email
+from python_http_client.exceptions import HTTPError
 
 def set_env():
     load_dotenv()
@@ -29,6 +32,8 @@ def set_env():
     GCP_UPLOADED_FOLDER = getenv("GCP_FOLDER_UPLOADED")
     global GCP_CONVERTED_FOLDER
     GCP_CONVERTED_FOLDER = getenv("GCP_FOLDER_CONVERTED")
+    global EMAIL_API_KEY
+    EMAIL_API_KEY = getenv("EMAIL_API_KEY")
 
 set_env()
 
@@ -66,7 +71,8 @@ def notify_authors(converted_audios):
                     'body': msg_text
                     }
         try:
-            send_email(email_data)
+            resemail = email(email_data)
+            print(resemail)
         except Exception as e:
             print(f"Unable to send notification to '{author_email}': {e}")
     
@@ -84,6 +90,27 @@ def send_email(email_data):
     with smtplib.SMTP(get_from_env("SMTP_SERVER"), get_from_env("SMTP_PORT")) as server:
         server.login(get_from_env("SMTP_USERNAME"), get_from_env("SMTP_PASSWORD"))
         server.sendmail(sender, receiver,   message.as_string())
+
+def email(email_data):
+    sg = SendGridAPIClient(EMAIL_API_KEY)
+
+    html_content = "<p>"+ email_data["body"] + "</p>"
+
+    message = Mail(
+        to_emails= email_data["to"],
+        from_email=Email('leslysharyncj@gmail.com', "Team-8"),
+        subject=email_data["subject"],
+        html_content=html_content
+        )
+    message.add_bcc("leslysharyncj@gmail.com")
+
+    try:
+        response = sg.send(message)
+        return f"email.status_code={response.status_code}"
+        #expected 202 Accepted
+
+    except HTTPError as e:
+        return e.message
 
 def convert_files(audios_to_process):
     converted_audios = []

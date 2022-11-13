@@ -165,20 +165,20 @@ class VistaTask(Resource):
 
     @jwt_required()
     def post(self):
-        id_user= get_jwt_identity()
+        user_id= get_jwt_identity()
         if allowed_file(request.files['fileName'].filename):
             if request.form["newFormat"] in ALLOWED_EXTENSIONS:
-                nuevo_task = Task(source_path= str(id_user) + "_" + request.files["fileName"].filename, 
-                                    target_path = str(id_user) + "_" + request.files["fileName"].filename.rsplit('.', 1)[0] + '.' + request.form["newFormat"],
+                nuevo_task = Task(source_path= str(user_id) + "_" + request.files["fileName"].filename, 
+                                    target_path = str(user_id) + "_" + request.files["fileName"].filename.rsplit('.', 1)[0] + '.' + request.form["newFormat"],
                                     target_format=request.form["newFormat"], 
                                     status=MediaStatus.uploaded,
-                                    user_id= id_user)
+                                    user_id= user_id)
                 db.session.add(nuevo_task)
                 db.session.commit()
                 print(UPLOAD_FOLDER)
-                request.files["fileName"].save(UPLOAD_FOLDER + "/"+ str(id_user) + "_" + request.files["fileName"].filename)
-                upload_to_bucket("/"+ str(id_user) + "_" + request.files["fileName"].filename)
-                os.remove(UPLOAD_FOLDER + "/"+ str(id_user) + "_" + request.files["fileName"].filename)
+                request.files["fileName"].save(UPLOAD_FOLDER + "/"+ str(user_id) + "_" + request.files["fileName"].filename)
+                upload_to_bucket("/"+ str(user_id) + "_" + request.files["fileName"].filename)
+                os.remove(UPLOAD_FOLDER + "/"+ str(user_id) + "_" + request.files["fileName"].filename)
                 return {"mensaje": "La tarea fue creada exitosamente", "id": nuevo_task.id}
             else:
                     return {"mensaje": "Formato a cambiar no permitido"}
@@ -202,8 +202,12 @@ class VistaArchivo(Resource):
         tasks = Task.query.filter(Task.user_id == user_id).all()
         archivoUser = str(user_id) + "_" + str(filename)
         convPath = CONVERTED_FOLDER + "/" + str(archivoUser)
+        print(archivoUser)
         for task in tasks:
             #Check if any task from has an original or uploaded file with the name and extension provided
+            print(task.source_path)
+            print(task.target_path)
+            
             if str(task.source_path) == archivoUser:
                 download_file_from_bucket(GCP_UPLOADED_FOLDER + "/" + archivoUser, UPLOAD_FOLDER + "/" + archivoUser)
                 result = send_from_directory(UPLOAD_FOLDER, archivoUser, as_attachment=True)
