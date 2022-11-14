@@ -37,7 +37,7 @@ Estar seguro que los archivos docker-compose.prod.yml, Dockerfile.prod, entrypoi
 
 # EJECUCIÓN Y DESPLIEGUE EN CLOUD 
 
-### El end point del request es http://34.122.182.37
+### El end point del request es http://35.241.56.82 el cual es la ip del load balancer
 
 Utilice el archivo de postman publicado para realizar las pruebas de los distintos endpoint remotos 
 
