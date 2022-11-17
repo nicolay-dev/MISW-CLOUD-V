@@ -19,3 +19,4 @@ gunicorn==20.1.0
 wheel
 google-cloud-storage
 sendgrid
+google-cloud-pubsub

@@ -8,8 +8,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from modelo import db, Task, TaskSchema, MediaStatus, Usuario
 from dotenv import load_dotenv
 from os import getenv
-from google.cloud import storage 
+from google.cloud import storage, pubsub_v1
 import os
+
+
 
 ALLOWED_EXTENSIONS = {"wav", "wma", "mp3", "ogg", "flac", "aac", "aiff", "m4a"}
 
@@ -36,6 +38,12 @@ set_env()
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'cloud-miso-8.json'
 storage_client = storage.Client()
 bucket = storage_client.get_bucket(BUCKET_NAME)
+project_id = "cloud-miso"
+topic_id = "worker-task-topic"
+publisher = pubsub_v1.PublisherClient()
+# The `topic_path` method creates a fully qualified identifier
+# in the form `projects/{project_id}/topics/{topic_id}`
+topic_path = publisher.topic_path(project_id, topic_id)
 
 
 def upload_to_bucket(file_path):
@@ -173,12 +181,25 @@ class VistaTask(Resource):
                                     target_format=request.form["newFormat"], 
                                     status=MediaStatus.uploaded,
                                     user_id= user_id)
+                                              
                 db.session.add(nuevo_task)
                 db.session.commit()
                 print(UPLOAD_FOLDER)
                 request.files["fileName"].save(UPLOAD_FOLDER + "/"+ str(user_id) + "_" + request.files["fileName"].filename)
                 upload_to_bucket("/"+ str(user_id) + "_" + request.files["fileName"].filename)
                 os.remove(UPLOAD_FOLDER + "/"+ str(user_id) + "_" + request.files["fileName"].filename)
+
+                
+                message1 =  "source_path: {} ".format(nuevo_task.source_path).encode("utf-8")
+                attributes = { 
+                    'source_path': str(nuevo_task.source_path),
+                    'target_path': str(nuevo_task.target_path),
+                    'user_id': str(nuevo_task.user_id),
+                    'target_format': str(nuevo_task.target_format)
+                }
+
+                future1 = publisher.publish(topic_path, message1, **attributes )
+                print(future1.result())
                 return {"mensaje": "La tarea fue creada exitosamente", "id": nuevo_task.id}
             else:
                     return {"mensaje": "Formato a cambiar no permitido"}
