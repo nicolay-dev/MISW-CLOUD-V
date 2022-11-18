@@ -7,14 +7,17 @@ import smtplib
 from email.mime.text import MIMEText
 from database import session
 from modeldb import Task, MediaStatus
+import logging
 from dotenv import load_dotenv
 from utils import get_from_env
-from google.cloud import storage 
-import os
+from google.cloud import storage, pubsub_v1
+from concurrent import futures
 from os import getenv
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail, Email
 from python_http_client.exceptions import HTTPError
+import app
+import os
 
 def set_env():
     load_dotenv()
@@ -34,13 +37,37 @@ def set_env():
     GCP_CONVERTED_FOLDER = getenv("GCP_FOLDER_CONVERTED")
     global EMAIL_API_KEY
     EMAIL_API_KEY = getenv("EMAIL_API_KEY")
+    global RUN_AS_SUSCRIBER
+    RUN_AS_SUSCRIBER = getenv("RUN_AS_SUSCRIBER")
 
 set_env()
 
 storage_client = storage.Client()
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "cloud-miso-8.json"
-bucket = storage_client.get_bucket(BUCKET_NAME)
 
+bucket = storage_client.get_bucket(BUCKET_NAME)
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'cloud-miso-8.json'
+project_id = "cloud-miso"
+subscription_id = "worker-subscription"
+subscriber = pubsub_v1.SubscriberClient()
+subscription_path = subscriber.subscription_path(project_id, subscription_id)
+
+
+def callback(message):
+    procesar_audio(message)
+    message.ack()
+
+if RUN_AS_SUSCRIBER == "True":
+    logging.debug("Condicional_suscriber")
+    future = subscriber.subscribe(subscription_path, callback=callback)
+    with subscriber:
+        try:
+            future.result()
+        except futures.TimeoutError:
+            future.cancel()  # Trigger the shutdown.
+            future.result()  # Block until the shutdown is complete.
+    # suscribe_to_new_msj()
+else: 
+    logging.debug("Condicional_suscriber_false")
 
 def upload_to_bucket(file_path):
     try:
@@ -158,34 +185,38 @@ def mark_rollback(rollback_audios):
 
 
 
-celery = Celery('tasks', broker=CELERY_BROKER_URL)
+#celery = Celery('tasks', broker=CELERY_BROKER_URL)
 
-celery.conf.beat_schedule = {
-    "Convert-audio-files": {
-        "task": "tasks.procesar_audio",
-        "schedule": 60
-    }
-}
+#celery.conf.beat_schedule = {
+#    "Convert-audio-files": {
+#        "task": "tasks.procesar_audio",
+#        "schedule": 60
+#    }
+#}
 
-@celery.task
-def procesar_audio():
+#@celery.task
+
+def procesar_audio(message):
     try:
-        audios_to_process = session.query(Task).filter_by(status = MediaStatus.uploaded).limit(100).all()
-        if len(audios_to_process) > 0:
-            lock_audios_to_process=mark_converted(audios_to_process)        
-        converted_audios = convert_files(audios_to_process)
-        number_audios_updated = mark_converted(converted_audios)
-        print("Number of files processed in the Batch %s" % number_audios_updated)
-        # If conversion resulted in error, move them back to "Recibida" so other process can pick them up
-        audios_to_rollback = [audio for audio in audios_to_process if audio not in converted_audios]
-        number_audios_rollback = mark_rollback(audios_to_rollback)
-        if number_audios_updated > 0:
-            if SEND_EMAIL == "True":
-                notify_authors(converted_audios)
-                print("Notify authors")
-            else:
-                print("Not sending emails")
-        return "DONE with SUCCESS"
+        
+        logging.debug("Received %s", message)
+        
+        # audios_to_process = session.query(Task).filter_by(status = MediaStatus.uploaded).limit(100).all()
+        # if len(audios_to_process) > 0:
+        #     lock_audios_to_process=mark_converted(audios_to_process)        
+        # converted_audios = convert_files(audios_to_process)
+        # number_audios_updated = mark_converted(converted_audios)
+        # print("Number of files processed in the Batch %s" % number_audios_updated)
+        # # If conversion resulted in error, move them back to "Recibida" so other process can pick them up
+        # audios_to_rollback = [audio for audio in audios_to_process if audio not in converted_audios]
+        # number_audios_rollback = mark_rollback(audios_to_rollback)
+        # if number_audios_updated > 0:
+        #     if SEND_EMAIL == "True":
+        #         notify_authors(converted_audios)
+        #         print("Notify authors")
+        #     else:
+        #         print("Not sending emails")
+        # return "DONE with SUCCESS"
     except Exception as e:
         print(f"Ocurrió un error durante la ejecución de la tarea: {str(e)}")
         return "DONE with ERRORS"

@@ -9,7 +9,8 @@ from modelo import db, Task, TaskSchema, MediaStatus, Usuario
 from dotenv import load_dotenv
 from os import getenv
 from google.cloud import storage, pubsub_v1
-import os
+import os, logging
+
 
 
 
@@ -31,7 +32,7 @@ def set_env():
     GCP_UPLOADED_FOLDER = getenv("GCP_FOLDER_UPLOADED")
     global GCP_CONVERTED_FOLDER
     GCP_CONVERTED_FOLDER = getenv("GCP_FOLDER_CONVERTED")
-    
+
 
 set_env()
 
