@@ -103,11 +103,11 @@ def email(email_data):
 
     message = Mail(
         to_emails= email_data["to"],
-        from_email=Email('leslysharyncj@gmail.com', "Team-8"),
+        from_email=Email('ls.campo10@uniandes.edu.co', "CloudTeam8"),
         subject=email_data["subject"],
         html_content=html_content
         )
-    message.add_bcc("leslysharyncj@gmail.com")
+    message.add_bcc("ls.campo10@uniandes.edu.co")
 
     try:
         response = sg.send(message)
