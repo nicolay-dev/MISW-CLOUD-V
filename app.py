@@ -3,6 +3,7 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_restful import Api
 from modelo import db
+import logging
 from vistas import VistaTask, VistaAuthenticator, VistaSignIn, VistaArchivo, VistaTaskPorId, VistaTest
 from dotenv import load_dotenv
 from os import getenv
@@ -43,6 +44,12 @@ api.add_resource(VistaArchivo, '/api/files/<filename>')
 
 
 jwt = JWTManager(app)
+
+
+LOG_FILENAME = 'web.log'
+logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG)
+logging.info("WEb iniciada")
+logging.debug('This message should go to the log file')
 
 if __name__ == '__main__':
     app.run(debug=False)
