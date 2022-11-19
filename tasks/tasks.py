@@ -151,7 +151,8 @@ def mark_converted(converted_audios):
 
 
 class Audio:
-    def __init__(self, source_path, target_path, target_format, user_id):
+    def __init__(self, id, source_path, target_path, target_format, user_id):
+        self.id = id
         self.source_path = source_path
         self.target_path = target_path
         self.target_format = target_format
@@ -163,7 +164,8 @@ def procesar_audio(message):
         print("Iniciando proceso de conversión de audio...")
         # logging.info("Iniciando proceso de conversión de audio...", message)
         if message.attributes:
-            audios_to_process= [Audio(source_path=message.attributes['source_path'], 
+            audios_to_process= [Audio(  id=message.attributes['id'],
+                source_path=message.attributes['source_path'], 
                         target_path=message.attributes['target_path'], 
                         user_id=message.attributes ['user_id'], 
                         target_format=message.attributes['target_format'])]    
