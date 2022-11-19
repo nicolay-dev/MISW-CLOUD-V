@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 from os import getenv
 from google.cloud import storage, pubsub_v1
 import os
+import logging
 
 
 
@@ -173,7 +174,10 @@ class VistaTask(Resource):
 
     @jwt_required()
     def post(self):
+        logging.debug('post')
+        logging.debug(request.files['fileName'].filename)
         user_id= get_jwt_identity()
+        logging.debug(user_id)
         if allowed_file(request.files['fileName'].filename):
             if request.form["newFormat"] in ALLOWED_EXTENSIONS:
                 nuevo_task = Task(source_path= str(user_id) + "_" + request.files["fileName"].filename, 
