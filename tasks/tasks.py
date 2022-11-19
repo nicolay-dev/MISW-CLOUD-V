@@ -67,7 +67,7 @@ def download_file_from_bucket(file_path):
 def notify_authors(converted_audios):
     
     for audio in converted_audios:
-        usuario = session.query(Usuario).filter_by(Usuario.id == audio.user_id).first()
+        usuario = session.query(Usuario).filter_by(id = audio.user_id).first()
         author_email = usuario.email
         msg_text = f"Usuario {author_email}:\n Queremos avisarle que su audio {audio.target_path} ya ha sido convertido."
         email_data = {
