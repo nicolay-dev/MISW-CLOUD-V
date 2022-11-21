@@ -17,7 +17,7 @@ from sendgrid.helpers.mail import Mail, Email
 from python_http_client.exceptions import HTTPError
 from google.cloud import pubsub_v1
 from google.cloud.pubsub_v1.subscriber import exceptions as sub_exceptions
-import json
+
 
 def set_env():
     load_dotenv()
@@ -39,6 +39,13 @@ def set_env():
     EMAIL_API_KEY = getenv("EMAIL_API_KEY")
 
 set_env()
+LOG_FILENAME = 'subscriber.log'
+logging.basicConfig(filename=LOG_FILENAME, format='%(asctime)s %(levelname)-8s %(message)s',
+                    level=logging.DEBUG, datefmt='%Y-%m-%d %H:%M:%S')
+logging.info("Recibido")
+logging.debug('Recibido3')
+timeout = 10.0
+
 
 storage_client = storage.Client()
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "cloud-miso-8.json"
@@ -162,7 +169,7 @@ class Audio:
 def procesar_audio(message):
     try:
         print("Iniciando proceso de conversión de audio...")
-        # logging.info("Iniciando proceso de conversión de audio...", message)
+        logging.info("Iniciando proceso de conversión de audio...")
         if message.attributes:
             audios_to_process= [Audio(  id=message.attributes['id'],
                 source_path=message.attributes['source_path'], 
@@ -177,9 +184,11 @@ def procesar_audio(message):
                     print("Notify authors")
                 else:
                     print("Not sending emails")
+        logging.info("Finalizando proceso de conversión de audio...")
+        logging.info("Tiempo empleado para la conversión de audio...")
         return "DONE with SUCCESS"
     except Exception as e:
-        print(f"Ocurrió un error durante la ejecución de la tarea: {str(e)}")
+        logging.info(f"Ocurrió un error durante la ejecución de la tarea: {str(e)}")
         return "DONE with ERRORS"
 
 
@@ -188,11 +197,7 @@ def procesar_audio(message):
 ''' --------------------------- -------------------- ------------------------'''
 
 
-LOG_FILENAME = 'subscriber.log'
-logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG)
-logging.info("Recibido")
-logging.debug('Recibido3')
-timeout = 10.0
+
 
 project_id = "cloud-miso"
 subscription_id = "worker-subscription"
@@ -208,9 +213,9 @@ def callback(message):
         # When `timeout` is not set, result() will block indefinitely,
         # unless an exception is encountered first.
         ack_future.result()
-        print(f"Ack for message {message.message_id} successful.")
+        logging.info(f"Ack for message {message.message_id} successful.")
     except sub_exceptions.AcknowledgeError as e:
-        print(
+        logging.info(
             f"Ack for message {message.message_id} failed with error: {e.error_code}"
         )
 
