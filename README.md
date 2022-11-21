@@ -46,4 +46,18 @@ Recuerde configurar la Ip, subir archivos adecuados y configurar el bearer token
 [https://miso-misw4204-cloud.postman.co/
 ](https://documenter.getpostman.com/view/20288420/2s84Dssfmy)
 
+# REPLICAR PRUEBAS 
 
+Por favor solicitar acceso al proyecto en Google Cloud al siguiente correo: leslysharyncj@gmail.com (no se colocan claves para entrar por ser correo personal).  
+
+Ejecutar las pruebas desde la instancia test-instance 
+
+Cargar el archivo de configuración a la máquina virtual, recuerde que el archivo de configuración debe tener el bearer token en el head, para generarlo utilice postman para login y copie y pegue el token en el header de Jmeter.  
+
+El archivo de configuración lo puede encontrar en el repositorio  
+
+https://github.com/nicolay-dev/MISW-CLOUD-V/blob/main/testaudio.jmx 
+
+Para replicar las pruebas se debe cargar el archivo de configuración de JMeter y ejecutarlo con el siguiente comando: 
+
+./jmeter.sh -n -t <<Path del archivo de configuración de JMeter en la máquina de cgp>> -l <<Path del archivo de logs con los resultados de ejecución>> 
