@@ -4,10 +4,10 @@ import subprocess
 import smtplib
 import logging
 from email.mime.text import MIMEText
-from database import session
-from modeldb import Task, MediaStatus, Usuario
+from tasks.database import session
+from tasks.modeldb import Task, MediaStatus, Usuario
 from dotenv import load_dotenv
-from utils import get_from_env
+from tasks.utils import get_from_env
 from google.cloud import storage 
 from concurrent import futures
 import os
@@ -17,6 +17,7 @@ from sendgrid.helpers.mail import Mail, Email
 from python_http_client.exceptions import HTTPError
 from google.cloud import pubsub_v1
 from google.cloud.pubsub_v1.subscriber import exceptions as sub_exceptions
+
 
 
 def set_env():
@@ -130,6 +131,8 @@ def convert_files(audios_to_process):
         print("Processing audio task id %s" % audio.source_path)
         source_path = UPLOAD_FOLDER + '/'+ audio.source_path
         target_path = CONVERTED_FOLDER + '/'+ audio.target_path
+        print("Source path %s" % source_path)
+        print("target_path%s" % target_path)
         download_file_from_bucket('/'+ audio.source_path)
         print("downloading file  %s" % audio.source_path)
         try:
