@@ -10,7 +10,9 @@ from dotenv import load_dotenv
 from tasks.utils import get_from_env
 from google.cloud import storage 
 from concurrent import futures
+from pydub import AudioSegment
 import os
+
 from os import getenv
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail, Email
