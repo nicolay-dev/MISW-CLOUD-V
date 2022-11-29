@@ -10,7 +10,7 @@ from concurrent import futures
 import logging
 from google.cloud import pubsub_v1
 import os
-from PublisherService.wsgi import main as app
+
 
 def set_env():
     load_dotenv()
