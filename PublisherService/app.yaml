@@ -25,3 +25,24 @@ handlers:
   # the entire handlers section) when there are no static files defined.
 - url: /.*
   script: auto
+
+env_variables:
+  FLASK_APP: "app.py"
+  FLASK_DEBUG: "1"
+  HOSTNAME: "0.0.0.0"
+  DATABASE_URL: "postgresql://misoadmin:miso1234@34.172.118.18:5432/cloudtask"
+  UPLOAD_FOLDER : "/home/app/audios/uploaded"
+  CONVERTED_FOLDER : "/home/app/audios/processed"
+  SMTP_SERVER: "smtp.mailtrap.io"
+  SMTP_PORT: "2525"
+  SMTP_USERNAME: "43016d8c11fc9e"
+  SMTP_PASSWORD: "ace826b1322476"
+  JWT_SECRET_KEY: "frase-secreta"
+  SQL_HOST: db
+  SQL_PORT: 5432
+  DATABASE: postgres
+  SEND_EMAIL: "False"
+  GCP_BUCKET_NAME :  'miso_bucket_8'
+  GCP_FOLDER_UPLOADED :  'audios/uploaded'
+  GCP_FOLDER_CONVERTED :  'audios/converted'
+  GOOGLE_APPLICATION_CREDENTIALS :  'cloud-miso-8.json'
