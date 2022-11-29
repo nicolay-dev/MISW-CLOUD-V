@@ -13,4 +13,4 @@
 # limitations under the License.
 
 runtime: python39
-entrypoint: gunicorn -b 0.0.0.0:5000 wsgi:app
+entrypoint: gunicorn -b :$PORT PublisherService.wsgi:main
