@@ -195,8 +195,7 @@ class VistaTask(Resource):
                 db.session.add(nuevo_task)
                 db.session.commit()
                 print(UPLOAD_FOLDER)
-                create_folder(UPLOAD_FOLDER)
-                create_folder(CONVERTED_FOLDER)
+
                 request.files["fileName"].save(UPLOAD_FOLDER + "/"+ str(user_id) + "_" + request.files["fileName"].filename)
                 upload_to_bucket("/"+ str(user_id) + "_" + request.files["fileName"].filename)
                 os.remove(UPLOAD_FOLDER + "/"+ str(user_id) + "_" + request.files["fileName"].filename)
