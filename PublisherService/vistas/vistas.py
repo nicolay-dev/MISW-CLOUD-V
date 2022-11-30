@@ -46,6 +46,15 @@ publisher = pubsub_v1.PublisherClient()
 # in the form `projects/{project_id}/topics/{topic_id}`
 topic_path = publisher.topic_path(project_id, topic_id)
 
+def create_folder(path):
+    try:
+        os.mkdir(path)
+    except OSError:
+        print ("Creation of the directory %s failed" % path)
+    else:
+        print ("Successfully created the directory %s " % path)
+    
+
 
 def upload_to_bucket(file_path):
     try:
@@ -186,6 +195,8 @@ class VistaTask(Resource):
                 db.session.add(nuevo_task)
                 db.session.commit()
                 print(UPLOAD_FOLDER)
+                create_folder(UPLOAD_FOLDER)
+                create_folder(CONVERTED_FOLDER)
                 request.files["fileName"].save(UPLOAD_FOLDER + "/"+ str(user_id) + "_" + request.files["fileName"].filename)
                 upload_to_bucket("/"+ str(user_id) + "_" + request.files["fileName"].filename)
                 os.remove(UPLOAD_FOLDER + "/"+ str(user_id) + "_" + request.files["fileName"].filename)
