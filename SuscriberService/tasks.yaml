@@ -1,0 +1,5 @@
+service: tasks
+runtime: python39
+# We want to specify the entrypoint to be able to optimize
+env: standard
+entrypoint: python /tasks/tasks.py 

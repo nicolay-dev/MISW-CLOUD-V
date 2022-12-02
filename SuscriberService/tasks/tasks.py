@@ -157,7 +157,7 @@ def convert_files(audios_to_process):
         download_file_from_bucket('/'+ audio.source_path)
         print("downloading file  %s" % audio.source_path)
         try:
-            result = subprocess.run(["/usr/bin/ffmpeg", "-y", "-i", source_path, target_path])
+            result = subprocess.run(["ffmpeg", "-y", "-i", source_path, target_path])
             if result.returncode == 0:
                 upload_to_bucket('/'+ audio.target_path)
                 os.remove(target_path)
