@@ -128,3 +128,13 @@ dmypy.json
 # Pyre type checker
 .pyre/
 cloud-miso-8.json
+
+cloud-miso-8_bk.json
+cloud-miso-8.json
+cloud-miso-8bk2.json
+
+SuscruibeService/susenv
+.DS_Store
+cloud-miso-8_bk2.json
+.gitignore
+cloud-miso-8.json

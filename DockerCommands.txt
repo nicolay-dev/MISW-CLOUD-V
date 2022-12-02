@@ -19,7 +19,6 @@ docker-compose -f docker-compose.prod.yml up -d --build
 #Estar seguro que los archivos docker-compose.prod.yml, Dockerfile.prod, entrypoint.prod.sh están 
 #en LF (configuración de salto de línea en el editor de texto) para Linux
 
-
 #construye una imagen docker de un archivo Dockerfile
 docker build --tag cloudtask .
 
@@ -32,3 +31,17 @@ docker run -p 5000:5000 cloudtask
 psql --username=misoadmin --dbname=cloudtask
 \l
 \dt
+
+
+# Flask comands:
+sudo sh jmeter -n -t ../../jmeter_test_scalability_1000.jmx -l results_test_standarfile_200.csv
+
+python3 -m venv susenv
+
+source susenv/bin/activate
+
+para desactivar el ambiente corre: 
+deactivate
+
+pip3 install -r requirements.txt
+flask --debug run

@@ -37,6 +37,8 @@ def set_env():
     GCP_CONVERTED_FOLDER = getenv("GCP_FOLDER_CONVERTED")
     global EMAIL_API_KEY
     EMAIL_API_KEY = getenv("EMAIL_API_KEY")
+    global RUN_AS_SUSCRIBER
+    RUN_AS_SUSCRIBER = getenv("RUN_AS_SUSCRIBER")
 
 set_env()
 LOG_FILENAME = 'subscriber.log'
@@ -48,9 +50,31 @@ timeout = 10.0
 
 
 storage_client = storage.Client()
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "cloud-miso-8.json"
-bucket = storage_client.get_bucket(BUCKET_NAME)
 
+bucket = storage_client.get_bucket(BUCKET_NAME)
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'cloud-miso-8.json'
+project_id = "cloud-miso"
+subscription_id = "worker-subscription"
+subscriber = pubsub_v1.SubscriberClient()
+subscription_path = subscriber.subscription_path(project_id, subscription_id)
+
+
+def callback(message):
+    procesar_audio(message)
+    message.ack()
+
+if RUN_AS_SUSCRIBER == "True":
+    logging.debug("Condicional_suscriber")
+    future = subscriber.subscribe(subscription_path, callback=callback)
+    with subscriber:
+        try:
+            future.result()
+        except futures.TimeoutError:
+            future.cancel()  # Trigger the shutdown.
+            future.result()  # Block until the shutdown is complete.
+    # suscribe_to_new_msj()
+else: 
+    logging.debug("Condicional_suscriber_false")
 
 def upload_to_bucket(file_path):
     try:
