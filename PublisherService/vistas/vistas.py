@@ -206,7 +206,8 @@ class VistaTask(Resource):
                     'source_path': str(nuevo_task.source_path),
                     'target_path': str(nuevo_task.target_path),
                     'user_id': str(nuevo_task.user_id),
-                    'target_format': str(nuevo_task.target_format)
+                    'target_format': str(nuevo_task.target_format),
+                    'id': str(nuevo_task.id)
                 }
 
                 future1 = publisher.publish(topic_path, message1, **attributes )

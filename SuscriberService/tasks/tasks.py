@@ -4,22 +4,19 @@ import subprocess
 import smtplib
 import logging
 from email.mime.text import MIMEText
-from tasks.database import session
-from tasks.modeldb import Task, MediaStatus, Usuario
+from database import session
+from modeldb import Task, MediaStatus, Usuario
 from dotenv import load_dotenv
-from tasks.utils import get_from_env
+from utils import get_from_env
 from google.cloud import storage 
 from concurrent import futures
-from pydub import AudioSegment
 import os
-
 from os import getenv
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail, Email
 from python_http_client.exceptions import HTTPError
 from google.cloud import pubsub_v1
 from google.cloud.pubsub_v1.subscriber import exceptions as sub_exceptions
-
 
 
 def set_env():
@@ -40,6 +37,8 @@ def set_env():
     GCP_CONVERTED_FOLDER = getenv("GCP_FOLDER_CONVERTED")
     global EMAIL_API_KEY
     EMAIL_API_KEY = getenv("EMAIL_API_KEY")
+    global RUN_AS_SUSCRIBER
+    RUN_AS_SUSCRIBER = getenv("RUN_AS_SUSCRIBER")
 
 set_env()
 LOG_FILENAME = 'subscriber.log'
@@ -51,9 +50,31 @@ timeout = 10.0
 
 
 storage_client = storage.Client()
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "cloud-miso-8.json"
-bucket = storage_client.get_bucket(BUCKET_NAME)
 
+bucket = storage_client.get_bucket(BUCKET_NAME)
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'cloud-miso-8.json'
+project_id = "cloud-miso"
+subscription_id = "worker-subscription"
+subscriber = pubsub_v1.SubscriberClient()
+subscription_path = subscriber.subscription_path(project_id, subscription_id)
+
+
+def callback(message):
+    procesar_audio(message)
+    message.ack()
+
+if RUN_AS_SUSCRIBER == "True":
+    logging.debug("Condicional_suscriber")
+    future = subscriber.subscribe(subscription_path, callback=callback)
+    with subscriber:
+        try:
+            future.result()
+        except futures.TimeoutError:
+            future.cancel()  # Trigger the shutdown.
+            future.result()  # Block until the shutdown is complete.
+    # suscribe_to_new_msj()
+else: 
+    logging.debug("Condicional_suscriber_false")
 
 def upload_to_bucket(file_path):
     try:
@@ -133,8 +154,6 @@ def convert_files(audios_to_process):
         print("Processing audio task id %s" % audio.source_path)
         source_path = UPLOAD_FOLDER + '/'+ audio.source_path
         target_path = CONVERTED_FOLDER + '/'+ audio.target_path
-        print("Source path %s" % source_path)
-        print("target_path%s" % target_path)
         download_file_from_bucket('/'+ audio.source_path)
         print("downloading file  %s" % audio.source_path)
         try:
