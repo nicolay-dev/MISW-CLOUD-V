@@ -37,14 +37,13 @@ Estar seguro que los archivos docker-compose.prod.yml, Dockerfile.prod, entrypoi
 
 # EJECUCIÓN Y DESPLIEGUE EN CLOUD 
 
-### El end point del request es http://35.241.56.82 el cual es la ip del load balancer
+### El end point del request es https://cloud-miso.uc.r.appspot.com
 
 Utilice el archivo de postman publicado para realizar las pruebas de los distintos endpoint remotos 
 
 Recuerde configurar la Ip, subir archivos adecuados y configurar el bearer token en las variables remotas. 
 
-[https://miso-misw4204-cloud.postman.co/
-](https://documenter.getpostman.com/view/20288420/2s84Dssfmy)
+[https://miso-misw4204-cloud.postman.co/](https://documenter.getpostman.com/view/20288420/2s84Dssfmy)
 
 # REPLICAR PRUEBAS 
 
