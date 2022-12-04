@@ -1,4 +1,4 @@
-import tasks.database as database
+import database as database
 from sqlalchemy import Column, Integer, String, Float, DateTime, Enum, ForeignKey
 import enum
 from sqlalchemy.orm import relationship
