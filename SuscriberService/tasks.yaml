@@ -1,0 +1,11 @@
+service: tasks
+runtime: python39
+# We want to specify the entrypoint to be able to optimize
+env: standard
+entrypoint: python tasks.py 
+
+env_variables:    
+    PYTHONUNBUFFERED: 1 # make sure we see logs
+
+manual_scaling:
+  instances: 1
