@@ -42,7 +42,7 @@ def set_env():
 
 set_env()
 LOG_FILENAME = 'subscriber.log'
-logging.basicConfig(filename=LOG_FILENAME, format='%(asctime)s %(levelname)-8s %(message)s',
+logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s',
                     level=logging.DEBUG, datefmt='%Y-%m-%d %H:%M:%S')
 logging.info("Recibido")
 logging.debug('Recibido3')
